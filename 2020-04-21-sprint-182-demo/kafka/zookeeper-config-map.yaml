@@ -1,0 +1,19 @@
+apiVersion: v1
+data:
+  init.sh: "\n      #!/bin/bash\n      set -e\n\n      [ -d /var/lib/zookeeper/data
+    ] || mkdir /var/lib/zookeeper/data\n      [ -z \"$ID_OFFSET\" ] && ID_OFFSET=1\n
+    \     export ZOOKEEPER_SERVER_ID=$((${HOSTNAME##*-} + $ID_OFFSET))\n      echo
+    \"${ZOOKEEPER_SERVER_ID:-1}\" | tee /var/lib/zookeeper/data/myid\n      cp -Lur
+    /etc/kafka-configmap/* /etc/kafka/\n    "
+  log4j.properties: "\n      log4j.rootLogger=INFO, stdout\n      log4j.appender.stdout=org.apache.log4j.ConsoleAppender\n
+    \     log4j.appender.stdout.layout=org.apache.log4j.PatternLayout\n      log4j.appender.stdout.layout.ConversionPattern=[%d]
+    %p %m (%c)%n\n\n      # Suppress connection log messages, three lines per livenessProbe
+    execution\n      log4j.logger.org.apache.zookeeper.server.NIOServerCnxnFactory=WARN\n
+    \     log4j.logger.org.apache.zookeeper.server.NIOServerCnxn=WARN\n    "
+  zookeeper.properties: "\n      4lw.commands.whitelist=ruok\n      tickTime=2000\n
+    \     dataDir=/var/lib/zookeeper/data\n      dataLogDir=/var/lib/zookeeper/log\n
+    \     clientPort=2181\n    "
+kind: ConfigMap
+metadata:
+  name: zookeeper
+  namespace: openshift-logging

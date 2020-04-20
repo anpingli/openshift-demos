@@ -1,0 +1,24 @@
+apiVersion: logging.openshift.io/v1alpha1
+kind: LogForwarding
+metadata:
+  generation: 1
+  name: instance
+  namespace: openshift-logging
+spec:
+  outputs:
+  - endpoint: tls://kafka.openshift-logging.svc.cluster.local:9092/clo-topic
+    name: kafka
+    type: kafka
+  pipelines:
+  - inputSource: logs-app
+    name: test-app
+    outputRefs:
+    - kafka
+  - inputSource: logs-infra
+    name: test-infra
+    outputRefs:
+    - kafka
+  - inputSource: logs-audit
+    name: test-audit
+    outputRefs:
+    - kafka
